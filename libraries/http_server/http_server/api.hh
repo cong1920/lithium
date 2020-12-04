@@ -89,8 +89,11 @@ template <typename Req, typename Resp> struct api {
 
     // skip the last / of the url.
     std::string_view route2(route);
-    if (route2.size() != 0 and route2[route2.size() - 1] == '/')
-      route2 = route2.substr(0, route2.size() - 1);
+    // TODO: Why do we need to skip last '/' of url? It blocks default index filew with serve_directory because 
+    //       when requesting a configured route path to static file directory we cannot find its mapping route
+    //       if requesting folder directly other than file.
+    // if (route2.size() != 0 and route2[route2.size() - 1] == '/')
+    //   route2 = route2.substr(0, route2.size() - 1);
 
     auto it = routes_map_.find(route2);
     if (it != routes_map_.end()) {
