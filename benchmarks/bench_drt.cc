@@ -1,9 +1,9 @@
 /**
- * bench_drt.cc — Microbenchmark for dynamic_routing_table
+ * bench_drt.cc �?Microbenchmark for dynamic_routing_table
  *
  * Measures:
  *   1. Route registration (insert) throughput
- *   2. Route lookup (find) throughput — both hits and misses
+ *   2. Route lookup (find) throughput �?both hits and misses
  *   3. Peak RSS (memory footprint)
  *
  * Build (Linux/WSL):
@@ -59,13 +59,13 @@ static long get_rss_kb() {
   return -1;
 }
 
-using Clock = std::chrono::high_resolution_clock;
+using hi_res_clock = std::chrono::high_resolution_clock;
 using ns = std::chrono::nanoseconds;
 
 // ─── Route generators ────────────────────────────────────────────────────────
 
 static std::vector<std::string> generate_routes() {
-  // Mix of static, parameterized, and deep paths — realistic REST API surface
+  // Mix of static, parameterized, and deep paths �?realistic REST API surface
   std::vector<std::string> routes;
 
   // Static CRUD-style routes (typical REST API)
@@ -167,13 +167,13 @@ static bench_result run_once(const std::vector<std::string>& routes,
 
   // ── Insert benchmark ──
   li::dynamic_routing_table<route_value> table;
-  auto t0 = Clock::now();
+  auto t0 = hi_res_clock::now();
   for (auto& r : routes) {
     auto& v = table[r];
     v.method = 1;
     v.handler = dummy_handler;
   }
-  auto t1 = Clock::now();
+  auto t1 = hi_res_clock::now();
   result.insert_ns_per_op =
       (double)std::chrono::duration_cast<ns>(t1 - t0).count() / routes.size();
 
@@ -181,7 +181,7 @@ static bench_result run_once(const std::vector<std::string>& routes,
 
   // ── Lookup hit benchmark ──
   volatile int sink = 0; // prevent optimizer from eliminating lookups
-  auto t2 = Clock::now();
+  auto t2 = hi_res_clock::now();
   for (int rep = 0; rep < lookup_multiplier; rep++) {
     for (auto& url : lookup_urls) {
       auto it = table.find(url);
@@ -189,13 +189,13 @@ static bench_result run_once(const std::vector<std::string>& routes,
         sink += it->second.method;
     }
   }
-  auto t3 = Clock::now();
+  auto t3 = hi_res_clock::now();
   long total_hits = (long)lookup_urls.size() * lookup_multiplier;
   result.lookup_hit_ns_per_op =
       (double)std::chrono::duration_cast<ns>(t3 - t2).count() / total_hits;
 
   // ── Lookup miss benchmark ──
-  auto t4 = Clock::now();
+  auto t4 = hi_res_clock::now();
   for (int rep = 0; rep < lookup_multiplier * 10; rep++) {
     for (auto& url : miss_urls) {
       auto it = table.find(url);
@@ -203,7 +203,7 @@ static bench_result run_once(const std::vector<std::string>& routes,
         sink += it->second.method;
     }
   }
-  auto t5 = Clock::now();
+  auto t5 = hi_res_clock::now();
   long total_misses = (long)miss_urls.size() * lookup_multiplier * 10;
   result.lookup_miss_ns_per_op =
       (double)std::chrono::duration_cast<ns>(t5 - t4).count() / total_misses;
