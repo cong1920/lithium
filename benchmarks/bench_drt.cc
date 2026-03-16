@@ -150,18 +150,18 @@ static std::vector<std::string> generate_miss_urls() {
 
 // ─── Benchmark runners ───────────────────────────────────────────────────────
 
-struct BenchResult {
+struct bench_result {
   double insert_ns_per_op;
   double lookup_hit_ns_per_op;
   double lookup_miss_ns_per_op;
   long rss_after_insert_kb;
 };
 
-static BenchResult run_once(const std::vector<std::string>& routes,
+static bench_result run_once(const std::vector<std::string>& routes,
                             const std::vector<std::string>& lookup_urls,
                             const std::vector<std::string>& miss_urls,
                             int lookup_multiplier) {
-  BenchResult result{};
+  bench_result result{};
 
   long rss_before = get_rss_kb();
 
@@ -220,7 +220,7 @@ int main(int argc, char** argv) {
   if (iterations < 1)
     iterations = 5;
 
-  int lookup_multiplier = 1000; // multiply lookups for stable timing
+  const int lookup_multiplier{1000}; // multiply lookups for stable timing
 
   auto routes = generate_routes();
   std::mt19937 rng(42); // deterministic seed
