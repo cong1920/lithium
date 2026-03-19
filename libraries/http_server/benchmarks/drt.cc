@@ -7,7 +7,7 @@
  *   3. Peak RSS (memory footprint)
  *
  * Build (Linux/WSL):
- *   g++ -O2 -std=c++20 -I ../libraries/http_server -o bench_drt bench_drt.cc
+ *   g++ -O2 -std=c++20 -I ../.. -o bench_drt drt.cc
  *
  * Usage:
  *   ./bench_drt [num_iterations]    (default: 5)
@@ -29,7 +29,7 @@
 #include <unistd.h>
 #endif
 
-#include "http_server/dynamic_routing_table.hh"
+#include "../http_server/dynamic_routing_table.hh"
 
 // ─── Route value type matching lithium's usage ───────────────────────────────
 
