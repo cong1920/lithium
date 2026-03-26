@@ -53,7 +53,12 @@ template <typename V> struct drt_node {
     std::string_view k = r.substr(s, c - s);
 
     if (children_.find(k) == children_.end()) {
-      children_[k] = pool_.allocate(pool_);
+      auto* child = pool_.allocate(pool_);
+      children_[k] = child;
+      // Cache the parameter child pointer for O(1) lookup in find()
+      if (k.size() > 4 and k[0] == '{' and k[1] == '{' and
+          k[k.size() - 2] == '}' and k[k.size() - 1] == '}')
+        param_child_ = child;
     }
     return children_[k]->find_or_create(r, c);
   }
@@ -100,20 +105,15 @@ template <typename V> struct drt_node {
         return it2;
     }
 
-    {
-      // if one child is a url param {{param_name}}, choose it
-      for (const auto& kv : children_) {
-        auto name = kv.first;
-        if (name.size() > 4 and name[0] == '{' and name[1] == '{' and
-            name[name.size() - 2] == '}' and name[name.size() - 1] == '}')
-          return kv.second->find(r, c);
-      }
-      return end();
-    }
+    // O(1) fallback to cached parameter child instead of O(n) linear scan
+    if (param_child_)
+      return param_child_->find(r, c);
+    return end();
   }
 
   V v_;
   std::unordered_map<std::string_view, drt_node*> children_;
+  drt_node* param_child_ = nullptr; // cached {{param}} child for O(1) lookup
   drt_node_pool<drt_node>& pool_;
 };
 
