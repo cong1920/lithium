@@ -368,12 +368,12 @@ template <typename FIBER> struct generic_http_ctx {
 
 #else // Windows impl with basic read write.
     size_t ext_pos = std::string_view(path).rfind('.');
-    std::string_view content_type;
+    std::string_view content_type("");
     if (ext_pos != std::string::npos) {
       auto type_itr = content_types.find(std::string_view(path).substr(ext_pos + 1).data());
       if (type_itr != content_types.end()) {
-      content_type = type_itr->second; set_header("Content-Type", content_type);
-      set_header("Cache-Control", "max-age=54000,immutable");
+        content_type = type_itr->second;
+        set_header("Content-Type", content_type);
       }
     }
 
@@ -396,19 +396,15 @@ template <typename FIBER> struct generic_http_ctx {
     // Read the file and write it to the socket.
     size_t nread = 1;
     size_t offset = 0;
+    char buffer[4096];
     while (nread != 0) {
-      char buffer[4096];
       nread = _fread_nolock(buffer, sizeof(buffer), 1, fd);
       offset += sizeof(buffer);
       this->fiber.write(buffer, sizeof(buffer));
     }
-    char buffer[4096];
     nread = _fread_nolock(buffer, file_size - offset, 1, fd);
     this->fiber.write(buffer, file_size - offset);
     fclose(fd);
-    // if (!feof(fd))
-    //   throw http_error::not_found("Internal error: Could not reach the end of file.");
-
 #endif
   }
 
