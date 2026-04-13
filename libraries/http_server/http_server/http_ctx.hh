@@ -7,7 +7,8 @@
 #include <string_view>
 #include <sys/stat.h>
 #include <sys/types.h>
-#if not defined(_WIN32)
+
+#ifndef _WIN32
 #include <sys/mman.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
@@ -36,9 +37,6 @@
 namespace li {
 
 namespace http_async_impl {
-
-static char* date_buf = nullptr;
-static int date_buf_size = 0;
 
 using ::li::content_types; // static std::unordered_map<std::string_view, std::string_view>
                            // content_types
